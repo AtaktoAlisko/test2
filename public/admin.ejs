@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        /* Общие стили */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+        }
+
+        /* Стили для таблицы пользователей */
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr:hover {
+            background-color: #ddd;
+        }
+
+        /* Стили для кнопок */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Panel - User List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th> <!-- Добавлен столбец для действий -->
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.username %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.status %></td>
+                    <td>
+                        <form action="/admin/makeAdmin/<%= user._id %>" method="post">
+                            <button class="btn" type="submit">Сделать администратором</button>
+                        </form>
+                        <!-- Добавлены кнопки для операций CRUD -->
+                        <form action="/admin/delete/<%= user._id %>" method="post">
+                            <button class="btn" type="submit">Delete</button>
+                        </form>
+                        <form action="/admin/update/<%= user._id %>" method="post">
+                            <button class="btn" type="submit">Update</button>
+                        </form>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+    <!-- Кнопка для создания нового пользователя -->
+    <form action="/admin/create" method="post">
+        <button class="btn" type="submit">Create User</button>
+    </form>
+    <script>
+    const form = document.querySelector('form'); // Получить ссылку на форму
+
+form.addEventListener('submit', event => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const username = formData.get('username');
+    const password = formData.get('password');
+
+    fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username: username,
+            password: password
+        })
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              window.location.href = data.redirectUrl;
+          } else {
+              alert(data.message);
+          }
+      });
+});
+    </script>
+</body>
+</html>
